@@ -1,0 +1,24 @@
+# Devenv/direnv
+.direnv/
+.devenv*
+devenv.local.nix
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+
+.env
+
+# Elixir
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+command_palette-*.tar
+/tmp/
+
+# Node
+/node_modules/

@@ -1,0 +1,326 @@
+/*
+ * The default look, for an app that passes no classes. Every colour, size and
+ * radius is a custom property, so an app can follow its own tokens without
+ * touching a rule:
+ *
+ *   :root { --cp-accent: rgb(var(--primary)); --cp-surface: rgb(var(--surface-alt)); }
+ */
+:root {
+  --cp-font: inherit;
+  --cp-surface: #ffffff;
+  --cp-raised: #f6f6f7;
+  --cp-text: #18181b;
+  --cp-muted: #71717a;
+  --cp-border: #e4e4e7;
+  --cp-accent: #6d28d9;
+  --cp-active: #f1eefb;
+  --cp-danger: #b91c1c;
+  --cp-scrim: rgb(0 0 0 / 0.45);
+  --cp-radius: 12px;
+  --cp-inner-radius: 8px;
+  --cp-width: 40rem;
+  --cp-top: 12vh;
+  --cp-list-height: 24rem;
+  --cp-icon-size: 1rem;
+  --cp-shadow: 0 24px 48px -12px rgb(0 0 0 / 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not(.light) {
+    --cp-surface: #1c1c1f;
+    --cp-raised: #232327;
+    --cp-text: #f4f4f5;
+    --cp-muted: #a1a1aa;
+    --cp-border: #34343a;
+    --cp-accent: #a78bfa;
+    --cp-active: #2c2640;
+    --cp-danger: #f87171;
+    --cp-scrim: rgb(0 0 0 / 0.6);
+  }
+}
+
+:root[data-theme="dark"],
+:root.dark {
+  --cp-surface: #1c1c1f;
+  --cp-raised: #232327;
+  --cp-text: #f4f4f5;
+  --cp-muted: #a1a1aa;
+  --cp-border: #34343a;
+  --cp-accent: #a78bfa;
+  --cp-active: #2c2640;
+  --cp-danger: #f87171;
+  --cp-scrim: rgb(0 0 0 / 0.6);
+}
+
+.cp-root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  font-family: var(--cp-font);
+  color: var(--cp-text);
+}
+
+.cp-root[hidden],
+.cp-root [hidden] {
+  display: none;
+}
+
+.cp-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--cp-scrim);
+}
+
+.cp-panel {
+  position: relative;
+  margin: var(--cp-top) auto 0;
+  width: min(var(--cp-width), calc(100vw - 2rem));
+  overflow: hidden;
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-radius);
+  background: var(--cp-surface);
+  box-shadow: var(--cp-shadow);
+}
+
+.cp-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--cp-border);
+}
+
+.cp-crumb {
+  flex-shrink: 0;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--cp-inner-radius);
+  background: var(--cp-raised);
+  color: var(--cp-muted);
+  font-size: 0.8125rem;
+}
+
+.cp-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.875rem 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.cp-input::placeholder {
+  color: var(--cp-muted);
+}
+
+.cp-list {
+  max-height: var(--cp-list-height);
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.5rem 0;
+  list-style: none;
+}
+
+.cp-heading {
+  padding: 0.75rem 1.25rem 0.25rem;
+  color: var(--cp-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.cp-heading:first-child {
+  padding-top: 0.25rem;
+}
+
+.cp-row {
+  margin: 0 0.5rem;
+  border-radius: var(--cp-inner-radius);
+  box-shadow: inset 2px 0 0 transparent;
+}
+
+.cp-row-active {
+  background: var(--cp-active);
+  box-shadow: inset 2px 0 0 var(--cp-accent);
+}
+
+.cp-row-inert {
+  opacity: 0.5;
+}
+
+.cp-row-danger {
+  color: var(--cp-danger);
+}
+
+.cp-control {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cp-row-inert .cp-control,
+.cp-control[aria-busy="true"] {
+  pointer-events: none;
+}
+
+.cp-icon {
+  flex-shrink: 0;
+  width: var(--cp-icon-size);
+  height: var(--cp-icon-size);
+  margin-right: 0.75rem;
+  color: var(--cp-muted);
+}
+
+.cp-row-danger .cp-icon {
+  color: var(--cp-danger);
+}
+
+.cp-mark {
+  background: transparent;
+  color: inherit;
+  font-weight: 600;
+}
+
+.cp-group {
+  margin-left: 0.5rem;
+  color: var(--cp-muted);
+  font-size: 0.75rem;
+}
+
+.cp-label .cp-group {
+  margin-left: 0;
+}
+
+.cp-detail {
+  margin-left: auto;
+  padding-left: 0.75rem;
+  color: var(--cp-muted);
+  font-size: 0.75rem;
+}
+
+.cp-keys {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-left: auto;
+  padding-left: 0.75rem;
+}
+
+.cp-detail + .cp-keys {
+  margin-left: 0;
+}
+
+.cp-key {
+  min-width: 1.25rem;
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid var(--cp-border);
+  border-radius: 4px;
+  background: var(--cp-raised);
+  color: var(--cp-muted);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  text-align: center;
+}
+
+.cp-more {
+  visibility: hidden;
+  margin-left: 0.5rem;
+  padding: 0 0.375rem;
+  border-radius: 4px;
+  color: var(--cp-muted);
+}
+
+.cp-row-active .cp-more,
+.cp-row:hover .cp-more {
+  visibility: visible;
+}
+
+.cp-more:hover {
+  background: var(--cp-raised);
+}
+
+.cp-chevron {
+  margin-left: 0.5rem;
+  color: var(--cp-muted);
+}
+
+.cp-spinner {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-left: auto;
+  border: 2px solid var(--cp-border);
+  border-top-color: var(--cp-accent);
+  border-radius: 50%;
+  animation: cp-spin 0.8s linear infinite;
+}
+
+.cp-empty,
+.cp-hint {
+  margin: 0;
+  padding: 1.5rem 1rem;
+  color: var(--cp-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.cp-hint {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--cp-border);
+  font-size: 0.75rem;
+}
+
+.cp-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--cp-border);
+  background: var(--cp-raised);
+  color: var(--cp-muted);
+  font-size: 0.75rem;
+}
+
+.cp-footer > :first-child:not(:has(.cp-key)) {
+  margin-right: auto;
+}
+
+.cp-root .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes cp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-spinner {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .cp-row-active {
+    outline: 2px solid Highlight;
+  }
+
+  .cp-mark {
+    text-decoration: underline;
+  }
+}
