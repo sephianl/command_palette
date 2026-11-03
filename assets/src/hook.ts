@@ -50,6 +50,10 @@ interface Reply {
   hint: string | null;
 }
 
+interface PageReply {
+  entries: Entry[];
+}
+
 /** A row's actions or children, opened on top of the list it came from. */
 interface Level {
   title: string;
@@ -65,7 +69,11 @@ interface JSCommands {
 
 export interface PaletteHook {
   el: HTMLElement;
-  pushEvent(event: string, payload: Record<string, unknown>): void;
+  pushEvent(
+    event: string,
+    payload: Record<string, unknown>,
+    onReply?: (reply: never) => void,
+  ): void;
   handleEvent(event: string, callback: (payload: never) => void): void;
   js(): JSCommands;
 
@@ -75,6 +83,8 @@ export interface PaletteHook {
   storageKey(): string;
   apple: boolean;
 
+  /** the page's own rows, asked for each time the palette opens */
+  pageEntries: Entry[];
   entries: PreparedEntry[];
   nested: PreparedEntry[];
   parents: Map<Entry, string>;
@@ -195,6 +205,7 @@ function hookMethods(): Omit<
       this.keyClose = this.el.querySelector("[data-palette-key-close]");
       this.keyBack = this.el.querySelector("[data-palette-key-back]");
 
+      this.pageEntries = [];
       this.remote = [];
       this.exact = [];
       this.hintText = null;
@@ -346,7 +357,10 @@ function hookMethods(): Omit<
     },
 
     loadEntries(this: PaletteHook) {
-      const entries = parseJson<Entry[]>(this.el.dataset.entries, []);
+      const entries = [
+        ...parseJson<Entry[]>(this.el.dataset.entries, []),
+        ...this.pageEntries,
+      ];
       this.entries = prepare(entries);
       this.sectionOrder = parseJson<SectionData[]>(
         this.el.dataset.sections,
@@ -523,6 +537,15 @@ function hookMethods(): Omit<
       this.input.value = "";
       this.input.focus();
       this.render();
+
+      // Asked for now rather than rendered with the page, which would rebuild
+      // and resend every row on each update the page makes.
+      this.pushEvent("palette_open", {}, ({ entries }: PageReply) => {
+        if (!this.open) return;
+        this.pageEntries = entries;
+        this.loadEntries();
+        this.render();
+      });
     },
 
     closePalette(this: PaletteHook) {
@@ -535,6 +558,8 @@ function hookMethods(): Omit<
       // results for something typed minutes ago.
       this.remote = [];
       this.hintText = null;
+      this.pageEntries = [];
+      this.loadEntries();
       if (this.searchTimer) clearTimeout(this.searchTimer);
       this.searchTimer = null;
       this.tracker.reset();

@@ -9,13 +9,9 @@ defmodule CommandPalette.Page do
         [%CommandPalette.Entry{label: "Cancel this order", section: :page, run: {:event, "cancel", %{}}}]
       end
 
-  Collect them with `entries/1` in the LiveView's own render, from its `assigns`, and hand them to the layout:
-
-      <Layouts.app flash={@flash} page_entries={CommandPalette.Page.entries(assigns)}>
-
-  Only the LiveView's `assigns` carry what `palette_entries/1` reads: a Phoenix 1.8 layout is a function component
-  that sees just the assigns it is given, and the `@socket` a template sees holds none of the page's. Reading `assigns`
-  directly also makes LiveView re-evaluate the call on every render, so a row never outlives the state it came from.
+  `CommandPalette.LiveHook` collects them with `entries/1` from the LiveView's assigns each time the palette opens, so
+  a row is as fresh as the opening. Do not pass them to the component: a render that carries them rebuilds and resends
+  every row on each assign change the page makes.
   """
 
   alias CommandPalette.Entry

@@ -451,6 +451,7 @@ function hookMethods() {
       this.keyActions = this.el.querySelector("[data-palette-key-actions]");
       this.keyClose = this.el.querySelector("[data-palette-key-close]");
       this.keyBack = this.el.querySelector("[data-palette-key-back]");
+      this.pageEntries = [];
       this.remote = [];
       this.exact = [];
       this.hintText = null;
@@ -560,7 +561,10 @@ function hookMethods() {
       this.stopNavigating();
     },
     loadEntries() {
-      const entries = parseJson(this.el.dataset.entries, []);
+      const entries = [
+        ...parseJson(this.el.dataset.entries, []),
+        ...this.pageEntries
+      ];
       this.entries = prepare(entries);
       this.sectionOrder = parseJson(
         this.el.dataset.sections,
@@ -709,6 +713,12 @@ function hookMethods() {
       this.input.value = "";
       this.input.focus();
       this.render();
+      this.pushEvent("palette_open", {}, ({ entries }) => {
+        if (!this.open) return;
+        this.pageEntries = entries;
+        this.loadEntries();
+        this.render();
+      });
     },
     closePalette() {
       this.open = false;
@@ -718,6 +728,8 @@ function hookMethods() {
       this.levels = [];
       this.remote = [];
       this.hintText = null;
+      this.pageEntries = [];
+      this.loadEntries();
       if (this.searchTimer) clearTimeout(this.searchTimer);
       this.searchTimer = null;
       this.tracker.reset();

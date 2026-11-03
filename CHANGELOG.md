@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **A page's own rows arrive when the palette opens.** The hook pushes `palette_open` and `CommandPalette.LiveHook`
+  replies with `CommandPalette.Page.entries/1`, or with the search's new optional `page_entries/1` for an app that adds
+  rows of its own around them. Rendered with the page, they were rebuilt and resent on every assign change, which on a
+  page with large filters and frequent PubSub updates cost more than the page itself.
+
+### Upgrading
+
+- Stop passing `CommandPalette.Page.entries(assigns)` (or rows built from the page's assigns) to the component: give it
+  only rows that do not depend on the page, and every row with a `shortcut`. Move app-specific page rows into
+  `c:CommandPalette.Search.page_entries/1`.
+
 ## 0.1.0 (2026-10-16)
 
 The first release: the palette Sephia's apps each kept their own copy of, extracted into one package.

@@ -47,4 +47,7 @@ never in one alone, and no letter ever changes meaning.
 - The hook pushes `palette_search` with `%{"q" => query, "seq" => seq}`.
 - `CommandPalette.LiveHook` answers with `palette:results`: `%{seq: seq, entries: [row], hint: string | nil}`. The
   hook drops a reply whose `seq` is not its latest.
+- On opening, the hook pushes `palette_open` with `%{}`. `CommandPalette.LiveHook` replies `%{entries: [row]}`, the
+  page's own rows, which the hook draws with `data-entries` until the palette closes. A reply that arrives after the
+  palette closed is dropped.
 - `phx:open-command-palette` on `window` opens the palette.

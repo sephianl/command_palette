@@ -18,11 +18,11 @@ worked integration that follows them, and `guides/behaviour.md` is what the peop
 
 - **Render `CommandPalette.Components.command_palette/1` once, inside the layout a LiveView renders**, never in
   `root.html.heex`: the root layout is outside the LiveView, so the hook never mounts there.
-- **Collect a page's own rows in the LiveView's render with `CommandPalette.Page.entries(assigns)`** and pass them down,
-  e.g. `<Layouts.app ... page_entries={CommandPalette.Page.entries(assigns)}>`. Never pass `@socket` and call it from
-  the layout: a 1.8 layout is a function component that sees only its own assigns, and the `@socket` in a template
-  holds none of the page's assigns, so the rows come back empty. Reading `assigns` directly is what makes LiveView
-  re-evaluate the call on every render, so the rows follow the page. A LiveView that offers no rows can leave it out.
+- **Never render a page's own rows.** `CommandPalette.LiveHook` sends them when the palette opens, from
+  `CommandPalette.Page.entries/1` or the search's `page_entries/1`. Passing them to the component makes every assign
+  change the page makes rebuild and resend all of them, which on a page with large filters or frequent PubSub
+  updates costs more than the page itself. Pass the component only rows that do not depend on the page: pages,
+  commands, and every row with a `shortcut`, since shortcuts run while the palette is closed.
 - **Every string is an attr** (`placeholder`, `label`, `empty`, `opening`, `run_hint`, `actions_hint`, `close_hint`,
   `back_hint`, optional `shortcuts_label`): the package has no gettext backend, so pass them translated.
 - **Pass `user_id`** so recency is kept apart per person in a shared browser.

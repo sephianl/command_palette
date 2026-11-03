@@ -67,18 +67,35 @@ defmodule CommandPalette.LiveHookTest do
       end)
     end
 
-    test "draws the page's own rows from its assigns, and follows them as they change", %{view: view} do
-      assert [%{"l" => "Reoptimize", "d" => "0"}] = page_rows(view)
+    test "answers the palette opening with the page's own rows, as its assigns stand then", %{view: view} do
+      render_hook(view, "palette_open", %{})
+      assert_reply(view, %{entries: [%{l: "Reoptimize", d: "0"}]})
 
       render_hook(view, "bump", %{})
+      render_hook(view, "palette_open", %{})
+      assert_reply(view, %{entries: [%{l: "Reoptimize", d: "1"}]})
+    end
 
-      assert [%{"l" => "Reoptimize", "d" => "1"}] = page_rows(view)
+    test "leaves the page's own rows out of the render", %{view: view} do
+      assert page_rows(view) == []
+      render_hook(view, "bump", %{})
+      assert page_rows(view) == []
     end
 
     test "passes every other event on to the LiveView", %{view: view} do
       render_hook(view, "own_event", %{})
 
       assert_received :own_event
+    end
+  end
+
+  describe "with a search that builds the page's rows itself" do
+    test "answers the palette opening with the search's page entries" do
+      {:ok, view, _html} = live_isolated(build_conn(), CommandPalette.Test.PagedLive)
+
+      render_hook(view, "palette_open", %{})
+
+      assert_reply(view, %{entries: [%{l: "Switch depot", d: "Gent"}]})
     end
   end
 
