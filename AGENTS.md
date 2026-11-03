@@ -56,11 +56,12 @@
 The package is not on Hex; apps depend on it from GitHub, pinned to a tag, so a release is a tag:
 
 1. `mix check` passes and `npm run build` leaves `priv/static` unchanged
-2. Bump `@version` in `mix.exs` and `version` in `package.json` together
+2. Bump `@version` in `mix.exs`, and `version` in `package.json` and `package-lock.json` (`npm install --package-lock-only`), together
 3. Move the CHANGELOG's entries under `## x.y.z (date)`
-4. Commit, then the maintainer tags `vx.y.z` and pushes the tag; the apps bump their `tag:`
+4. Commit and merge to `main`. The `Release` workflow tags `vx.y.z` and opens a GitHub release with that CHANGELOG section;
+   a version whose tag already exists is skipped. The apps then bump their `tag:`
 
-Never push or tag from an agent session: publishing is the maintainer's.
+Never push to `main` or tag from an agent session: publishing is the maintainer's.
 
 # Key Reference
 
