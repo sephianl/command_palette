@@ -20,7 +20,7 @@ defmodule CommandPalette.Test.Live do
     ~H"""
     <div>page</div>
     <Components.command_palette
-      entries={CommandPalette.Page.entries(assigns)}
+      entries={[]}
       sections={[%Section{key: :page, label: "This page"}]}
       placeholder="Search"
       label="Search"

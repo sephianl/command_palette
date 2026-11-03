@@ -42,25 +42,19 @@ classes instead. See [Installing](../usage-rules.md#installing) for the hook's k
 
 ## 3. The palette, in the layout
 
-The palette needs the rows of the LiveView on screen, which a 1.8 layout cannot see, so each LiveView collects them
-in its own render and passes them to the layout ([Rendering](../usage-rules.md#rendering)):
-
-```heex
-<%!-- in a LiveView's render --%>
-<Layouts.app flash={@flash} current_scope={@current_scope} page_entries={CommandPalette.Page.entries(assigns)}>
-```
+The layout renders the rows that do not depend on the page. The rows of the LiveView on screen arrive when the palette
+opens, from `CommandPalette.LiveHook` ([Rendering](../usage-rules.md#rendering)), so the layout never passes them:
 
 ```elixir
 # lib/my_app_web/components/layouts.ex
 attr :flash, :map, required: true
 attr :current_scope, :map, default: nil
-attr :page_entries, :list, default: []
 slot :inner_block, required: true
 
 def app(assigns) do
   ~H"""
   <main>{render_slot(@inner_block)}</main>
-  <MyAppWeb.Palette.palette :if={@current_scope} current_scope={@current_scope} page_entries={@page_entries} />
+  <MyAppWeb.Palette.palette :if={@current_scope} current_scope={@current_scope} />
   <.flash_group flash={@flash} />
   """
 end
@@ -76,10 +70,9 @@ defmodule MyAppWeb.Palette do
   alias CommandPalette.{Entry, Section}
 
   attr :current_scope, :map, required: true
-  attr :page_entries, :list, default: []
 
   def palette(assigns) do
-    assigns = assign(assigns, :entries, pages() ++ commands() ++ assigns.page_entries)
+    assigns = assign(assigns, :entries, pages() ++ commands())
 
     ~H"""
     <CommandPalette.Components.command_palette
@@ -153,7 +146,8 @@ window.addEventListener("app:set-theme", (e) => setTheme(e.detail.theme));
 
 ## 4. A page's own rows
 
-A LiveView offers rows for what it shows by implementing `CommandPalette.Page`, which gets the LiveView's assigns:
+A LiveView offers rows for what it shows by implementing `CommandPalette.Page`, which gets the LiveView's assigns
+each time the palette opens:
 
 ```elixir
 defmodule MyAppWeb.OrderLive.Show do

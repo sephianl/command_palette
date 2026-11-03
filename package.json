@@ -1,6 +1,6 @@
 {
   "name": "command_palette",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A command palette for Phoenix LiveView.",
   "private": true,
   "license": "MIT",

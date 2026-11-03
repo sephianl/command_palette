@@ -9,12 +9,17 @@ defmodule CommandPalette.LiveHook do
   A query reaches `c:CommandPalette.Search.search/2` only when `searchable?/1` holds. The hook checks that here as well
   as in the browser, because the event comes from the browser and may say anything.
 
+  It also answers the palette opening with the page's own rows: `c:CommandPalette.Search.page_entries/1`, or
+  `CommandPalette.Page.entries/1` when the search leaves it out. They are built then rather than on every render: a
+  render that carried them would rebuild and resend every row on each assign change the page makes.
+
   A newer query cancels the search of an older one rather than being throttled. A throttle drops a query that comes too
   soon, and the palette then never answers the latest text; the browser's debounce is what keeps the socket quiet.
   """
 
   import Phoenix.LiveView, only: [attach_hook: 4, cancel_async: 2, push_event: 3, put_private: 3, start_async: 3]
 
+  alias CommandPalette.Page
   alias CommandPalette.Wire
   alias Phoenix.LiveView.Socket
 
@@ -56,7 +61,16 @@ defmodule CommandPalette.LiveHook do
     end
   end
 
+  defp handle_search(search, "palette_open", _params, socket),
+    do: {:halt, %{entries: Wire.entries(page_entries(search, socket))}, socket}
+
   defp handle_search(_search, _event, _params, socket), do: {:cont, socket}
+
+  defp page_entries(search, socket) do
+    if Code.ensure_loaded?(search) and function_exported?(search, :page_entries, 1),
+      do: search.page_entries(socket),
+      else: Page.entries(Map.put(socket.assigns, :socket, socket))
+  end
 
   defp handle_reply(:command_palette_search, {:ok, {seq, {entries, hint}}}, socket) do
     {:halt, reply(socket, seq, entries, hint)}

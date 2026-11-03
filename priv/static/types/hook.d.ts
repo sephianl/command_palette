@@ -28,7 +28,7 @@ interface JSCommands {
 }
 export interface PaletteHook {
     el: HTMLElement;
-    pushEvent(event: string, payload: Record<string, unknown>): void;
+    pushEvent(event: string, payload: Record<string, unknown>, onReply?: (reply: never) => void): void;
     handleEvent(event: string, callback: (payload: never) => void): void;
     js(): JSCommands;
     classes: Classes;
@@ -36,6 +36,8 @@ export interface PaletteHook {
     /** where recency is kept, apart for each person */
     storageKey(): string;
     apple: boolean;
+    /** the page's own rows, asked for each time the palette opens */
+    pageEntries: Entry[];
     entries: PreparedEntry[];
     nested: PreparedEntry[];
     parents: Map<Entry, string>;

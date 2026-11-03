@@ -561,7 +561,11 @@ describe("choose", () => {
   });
 
   it("does not push an event for a navigation entry", () => {
-    expect(chooseFirst("routes").pushEvent).not.toHaveBeenCalled();
+    const events = chooseFirst("routes").pushEvent.mock.calls.map(
+      ([event]: [string]) => event,
+    );
+
+    expect(events).toEqual(["palette_open"]);
   });
 
   it("records recency under the explicit key, not the volatile path", () => {

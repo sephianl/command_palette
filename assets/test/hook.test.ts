@@ -113,6 +113,18 @@ function reply(
 const labels = (palette: TestHook): string[] =>
   palette.results.map((result: { entry: Entry }) => result.entry.l);
 
+const searches = (palette: TestHook): unknown[][] =>
+  palette.pushEvent.mock.calls.filter(
+    ([event]: [string]) => event === "palette_search",
+  );
+
+function answerOpen(palette: TestHook, entries: Entry[]): void {
+  const [, , onReply] = palette.pushEvent.mock.calls.find(
+    ([event]: [string]) => event === "palette_open",
+  );
+  onReply({ entries });
+}
+
 const highlighted = (palette: TestHook): string =>
   palette.results[palette.selected].entry.l;
 
@@ -299,11 +311,9 @@ describe("server results", () => {
     type(palette, "ab12");
     vi.advanceTimersByTime(200);
 
-    expect(palette.pushEvent).toHaveBeenCalledTimes(1);
-    expect(palette.pushEvent).toHaveBeenCalledWith("palette_search", {
-      q: "ab12",
-      seq: 1,
-    });
+    expect(searches(palette)).toEqual([
+      ["palette_search", { q: "ab12", seq: 1 }],
+    ]);
   });
 
   it("are asked for a short query that is all digits", () => {
@@ -385,7 +395,7 @@ describe("row actions", () => {
     vi.advanceTimersByTime(200);
 
     expect(labels(palette)).toEqual(["Copy order id"]);
-    expect(palette.pushEvent).not.toHaveBeenCalled();
+    expect(searches(palette)).toEqual([]);
   });
 
   it("run a window event and close", () => {
@@ -722,5 +732,49 @@ describe("drawing", () => {
 
     expect(after).toEqual(before);
     expect(after[1].getAttribute("aria-selected")).toBe("true");
+  });
+});
+
+describe("page rows", () => {
+  const PAGE_ROW: Entry = {
+    s: "page",
+    l: "Lock all routes",
+    e: "lock_all_routes",
+  };
+
+  it("are asked for on opening and drawn with the rendered rows", () => {
+    const palette = mount([{ s: "pages", l: "Routes", p: "/routes" }]);
+    palette.openPalette();
+
+    expect(labels(palette)).toEqual(["Routes"]);
+
+    answerOpen(palette, [PAGE_ROW]);
+
+    expect(labels(palette)).toEqual(["Routes", "Lock all routes"]);
+  });
+
+  it("are dropped on closing, so the next opening asks again", () => {
+    const palette = mount([{ s: "pages", l: "Routes", p: "/routes" }]);
+    palette.openPalette();
+    answerOpen(palette, [PAGE_ROW]);
+    palette.closePalette();
+    palette.pushEvent.mockClear();
+    palette.openPalette();
+
+    expect(labels(palette)).toEqual(["Routes"]);
+    expect(palette.pushEvent).toHaveBeenCalledWith(
+      "palette_open",
+      {},
+      expect.any(Function),
+    );
+  });
+
+  it("are ignored when they arrive after the palette closed", () => {
+    const palette = mount([{ s: "pages", l: "Routes", p: "/routes" }]);
+    palette.openPalette();
+    palette.closePalette();
+    answerOpen(palette, [PAGE_ROW]);
+
+    expect(palette.pageEntries).toEqual([]);
   });
 });

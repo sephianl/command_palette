@@ -1,7 +1,8 @@
 defmodule CommandPalette.Wire do
   @moduledoc """
   The JSON the hook reads: entries and sections as maps with single-letter keys, leaving out every key that carries no
-  information. The entries ship with every render of the layout, so their size is paid on each page load.
+  information. The rows in `data-entries` ship with the layout, so their size is paid on each page load; the page's own
+  rows come in the reply to `palette_open` instead.
 
   This module is the only place that knows the alphabet; `guides/wire-format.md` lists it, and the hook's
   `assets/src/types.ts` declares it.
